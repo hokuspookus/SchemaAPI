@@ -44,7 +44,43 @@ def getRenderKey():
 
 		return key
 
-def getLessons():
+def getSignature(signature: str):
+	url = "https://web.skola24.se/api/encrypt/signature"
+
+	headers = {
+		"Host": "web.skola24.se",
+		"Cookie": "ASP.NET_SessionId=x4pe3kekxw4gmqn0eggdt4e5; TS01fb1e5e=012f3bf5f94c7c95ad2b7687bb481cd5750a1bd405a7f58612fa66fcf05d308056333b1a70193584a0d16cd5b59c3cf50772e16dd5802f0953aeebe825cbaf8026cbb5f27f",
+		"Content-Length": "21",
+		"Sec-Ch-Ua": "",
+		"Sec-Ch-Ua-Mobile": "?0",
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.5845.141 Safari/537.36",
+		"Content-Type": "application/json",
+		"Accept": "application/json, text/javascript, */*; q=0.01",
+		"X-Scope": "8a22163c-8662-4535-9050-bc5e1923df48",
+		"X-Requested-With": "XMLHttpRequest",
+		"Sec-Ch-Ua-Platform": "",
+		"Origin": "https://web.skola24.se",
+		"Sec-Fetch-Site": "same-origin",
+		"Sec-Fetch-Mode": "cors",
+		"Sec-Fetch-Dest": "empty",
+		"Referer": "https://web.skola24.se/timetable/timetable-viewer/falkoping.skola24.se/%C3%85llebergsgymnasiet/",
+		"Accept-Encoding": "gzip, deflate",
+		"Accept-Language": "en-US,en;q=0.9",
+		"Connection": "close",
+	}
+
+	payload = {"signature": signature}
+
+	response = requests.post(url, json=payload, headers=headers)
+
+	print(response.status_code)
+	print(response.text)
+
+	return json.loads(response.text)['data']['signature']
+
+def getLessons(signature: str):
+		selection = getSignature(signature)
+
 		url = "https://web.skola24.se/api/render/timetable"
 
 		headers = {
@@ -80,7 +116,7 @@ def getLessons():
 				"width": 1223,
 				"height": 550,
 				"selectionType": 4,
-				"selection": "4-XCvraOSnw4dOwyE2ClD3gJyjlexw4Hl-OIdz0i-uGETtZwzWN-1tb2WPruKxNiTIlWV4LyJrKP5JCCsscspz0bCR-PxezB3Wg7ZSM6F84RSr6-1mqhFIkatTGh4ncY",
+				"selection": selection,
 				"showHeader": False,
 				"periodText": "",
 				"week": 47,
@@ -107,6 +143,6 @@ async def returnRenderKey():
 		return { "key": getRenderKey() }
 
 
-@app.get("/get/lessons")
-async def returnLessons():
-		return getLessons()
+@app.get("/get/lessons/{signature}")
+async def returnLessons(signature: str):
+		return getLessons(signature)
