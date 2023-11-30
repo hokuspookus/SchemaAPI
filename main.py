@@ -132,7 +132,6 @@ def getLessons(signature: str):
 
 		return lessons
 
-
 @app.get("/")
 def read_root():
 		return {"Hello": "Worlds"}
